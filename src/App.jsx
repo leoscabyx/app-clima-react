@@ -5,6 +5,7 @@ function App() {
   const [countries, setCountries] = useState([])
   const [cities, setCities] = useState([])
   const [clima, setClima] = useState(null)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     ( async () => {
@@ -47,9 +48,16 @@ function App() {
       url: 'https://api.openweathermap.org/data/2.5/weather',
       params: {appid: 'f6a1964c9a371c0d7a22a2bc88ca4217', q: e.currentTarget.value, units: 'metric'}
     };
-    
-    const { data } = await axios.request(options)
-    setClima({...data.main, icon: data.weather[0].icon})
+
+    try {
+      const res = await axios.request(options)
+      const { data } = res
+      console.log('debug: ', res)
+      setClima({...data.main, icon: data.weather[0].icon})
+      setError(false)
+    } catch (error) {
+      setError(true)
+    }
   }
 
   return (
@@ -78,7 +86,8 @@ function App() {
           </>
         )}
       </div>
-      {clima && (
+      { error && (<div className='alerta'>No esta disponible el clima</div>)}
+      { !error && clima && (
         <div className='clima'>
           <div className='clima__info'>
             <h2 className='clima__feels-like'>Sensacion {clima.feels_like.toFixed()}°</h2>
